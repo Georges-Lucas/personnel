@@ -1,6 +1,7 @@
 package personnel;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
  * Employé d'une ligue hébergée par la M2L. Certains peuvent 
@@ -15,15 +16,18 @@ public class Employe implements Serializable, Comparable<Employe>
 	private static final long serialVersionUID = 4795721718037994734L;
 	private String nom, prenom, password, mail;
 	private Ligue ligue;
+	private LocalDate arrive, depart;
 	private GestionPersonnel gestionPersonnel;
 	
-	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password)
+	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, LocalDate arrive, LocalDate depart)
 	{
 		this.gestionPersonnel = gestionPersonnel;
 		this.nom = nom;
 		this.prenom = prenom;
 		this.password = password;
 		this.mail = mail;
+		this.arrive = arrive;
+		this.depart = depart;
 		this.ligue = ligue;
 	}
 	
@@ -161,6 +165,46 @@ public class Employe implements Serializable, Comparable<Employe>
 		else
 			throw new ImpossibleDeSupprimerRoot();
 	}
+	
+	/*
+	 * Retourne la date d'arrivée de employé.
+	 * @return la date d'arrivée de employé.
+	 * 
+	 * */
+	
+	public LocalDate getarrive()
+	{
+		return arrive;
+	}
+	
+	/**
+	 * Change la date d'arrivée de l'employé.
+	 * @param la date d'arrivée de l'employé. 
+	 */
+	
+	public void setarrive(LocalDate arrive) {
+		this.arrive = arrive;
+	}
+	
+	/*
+	 * Retourne la date de départ de employé.
+	 * @return la date de départ de employé.
+	 * 
+	 * */
+	
+	public LocalDate getdepart()
+	{
+		return depart;
+	}
+	
+	/**
+	 * Change la date départ de l'employé.
+	 * @param la date départ de l'employé. 
+	 */
+	
+	public void setdepart(LocalDate depart) {
+		this.depart = depart;
+	}	
 
 	@Override
 	public int compareTo(Employe autre)
