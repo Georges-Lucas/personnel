@@ -3,7 +3,7 @@ TRAVAILLER, 11 EMPLOYÉ, 0N LIGUE
 :
 
 ROLE, 11 EMPLOYÉ, 0N NIVEAU_ACCES
-DIRIGER, 0N [responsable] EMPLOYÉ, 0N LIGUE
+DIRIGER, 01  EMPLOYÉ, 0N LIGUE
 LIGUE: id_ligue, nom_ligue
 
 NIVEAU_ACCES : id_employé, niveau_d'accès
