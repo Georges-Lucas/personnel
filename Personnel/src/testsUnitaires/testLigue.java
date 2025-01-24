@@ -26,4 +26,15 @@ class testLigue
 		Employe employe = ligue.addEmploye("Bouchard", "Gérard", "g.bouchard@gmail.com", "azerty",LocalDate.now(),null); 
 		assertEquals(employe, ligue.getEmployes().first());
 	}
+	
+	@Test
+	void editEmploye() throws SauvegardeImpossible
+	{
+		Ligue ligue = gestionPersonnel.addLigue("Course");
+		Employe employe = ligue.addEmploye("Babski", "Florian", "f@gmail.com", "azerty",LocalDate.now(),null);
+		employe.setarrive(LocalDate.of(2023,2,10));
+		employe.setdepart(LocalDate.of(2023,5,23));
+		assertEquals(employe, ligue.getEmployes().first());
+	}
 }
+	
