@@ -1,11 +1,10 @@
 EMPLOYÉ: id_employé, nom_employé, prenom_employé, email_employé, mdp_employé, date_départ, date_arrivé
-TRAVAILLER, 0N EMPLOYÉ, 1N LIGUE
+TRAVAILLER, 11 EMPLOYÉ, 0N LIGUE
 :
 
-ROLE, 11 EMPLOYÉ, 11 NIVEAU_ACCES
+ROLE, 11 EMPLOYÉ, 0N NIVEAU_ACCES
 DIRIGER, 0N [responsable] EMPLOYÉ, 0N LIGUE
 LIGUE: id_ligue, nom_ligue
 
 NIVEAU_ACCES : id_employé, niveau_d'accès
-EDITER, 0N EMPLOYÉ, 0N NIVEAU_ACCES, 0N LIGUE
 :
