@@ -18,6 +18,8 @@ public class Employe implements Serializable, Comparable<Employe>
 	private Ligue ligue;
 	private LocalDate arrive, depart;
 	private GestionPersonnel gestionPersonnel;
+	private InvalideDate arr;
+	private InvalideDate dep;
 	
 	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, LocalDate arrive, LocalDate depart)
 	{
@@ -182,8 +184,22 @@ public class Employe implements Serializable, Comparable<Employe>
 	 * @param la date d'arrivée de l'employé. 
 	 */
 	
-	public void setarrive(LocalDate arrive) {
-		this.arrive = arrive;
+	public void setarrive(LocalDate arrive) throws InvalideDate {
+		try {
+			if(this.depart != null) {
+				if(this.depart.isAfter(arrive)) {
+					this.arrive = arrive;
+				}else {
+					throw new InvalideDate(arr);
+				}
+			}else {
+				this.arrive = arrive;
+			}
+		}catch(InvalideDate arr) {
+			throw new InvalideDate(arr);
+		}
+		
+		
 	}
 	
 	/*
@@ -202,8 +218,19 @@ public class Employe implements Serializable, Comparable<Employe>
 	 * @param la date départ de l'employé. 
 	 */
 	
-	public void setdepart(LocalDate depart) {
-		this.depart = depart;
+	public void setdepart(LocalDate depart) throws InvalideDate{
+		try {
+				if(this.arrive.isBefore(depart)) {
+					this.depart = depart;
+				}else {
+					throw new InvalideDate(dep);
+				}
+		}catch(InvalideDate dep) {
+			throw new InvalideDate(dep);
+		}
+			
+		
+		
 	}	
 
 	@Override

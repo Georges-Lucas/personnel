@@ -27,14 +27,23 @@ class testLigue
 		assertEquals(employe, ligue.getEmployes().first());
 	}
 	
-	@Test
-	void editEmploye() throws SauvegardeImpossible
+	@Test 
+	void arriveIncorrecte() throws SauvegardeImpossible, Exception
 	{
 		Ligue ligue = gestionPersonnel.addLigue("Course");
-		Employe employe = ligue.addEmploye("Babski", "Florian", "f@gmail.com", "azerty",LocalDate.now(),null);
-		employe.setarrive(LocalDate.of(2023,2,10));
+		Employe employe = ligue.addEmploye("Babski", "Florian", "f@gmail.com", "azerty",LocalDate.now(),LocalDate.of(2022, 10, 1));
+		employe.setarrive(LocalDate.of(2023,5,23));
+		assertEquals(employe, ligue.getEmployes().first());
+	}
+	
+	@Test
+	void departIncorrecte() throws Exception, SauvegardeImpossible
+	{
+		Ligue ligue = gestionPersonnel.addLigue("Course");
+		Employe employe = ligue.addEmploye("Grondin", "Lucas", "gl@gmail.com", "azerty",LocalDate.now(),null);
 		employe.setdepart(LocalDate.of(2023,5,23));
 		assertEquals(employe, ligue.getEmployes().first());
 	}
+	
 }
 	
