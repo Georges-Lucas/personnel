@@ -27,6 +27,7 @@ public class EmployeConsole
 			menu.add(changerPrenom(employe));
 			menu.add(changerMail(employe));
 			menu.add(changerPassword(employe));
+			menu.add(supEmploye(employe));
 			menu.addBack("q");
 			return menu;
 	}
@@ -53,5 +54,8 @@ public class EmployeConsole
 		return new Option("Changer le password", "x", () -> {employe.setPassword(getString("Nouveau password : "));});
 	}
 	
-
+	private Option supEmploye(final Employe employe)
+	{
+		return new Option("Supprimer l'employé", "d", () -> {employe.remove();});
+	}
 }
