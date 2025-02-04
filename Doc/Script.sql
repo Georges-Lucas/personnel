@@ -1,7 +1,7 @@
 DROP TABLE LIGUE;
 DROP TABLE EMPLOYE;
 DROP TABLE NIVEAU_ACCES;
-DROPT TABLE TRAVAIL;
+DROP TABLE TRAVAIL;
 DROP TABLE ROLE;
 
 
@@ -21,21 +21,23 @@ date_depart DATE
 );
 
 CREATE TABLE NIVEAU_ACCES (
+id_niveau_acces int PRIMARY KEY NOT NULL AUTO_INCREMENT,
 niveau_acces varchar(32) PRIMARY KEY
 );
 
 CREATE TABLE TRAVAIL (
 id_employe int,
-id_ligue int,
+nom_ligue int,
 FOREIGN KEY (id_employe) REFERENCES EMPLOYE(id_employe),
-FOREIGN KEY (id_ligue) REFERENCES LIGUE(id_ligue)
+FOREIGN KEY (nom_igue) REFERENCES LIGUE(nom_ligue)
 );
 
 CREATE TABLE ROLE (
-id_employe int,
+id_role int PRIMARY KEY NOT NULL AUTO_INCREMENT;
 niveau_acces varchar(32),
-FOREIGN KEY (id_employe) REFERENCES EMPLOYE(id_employe),
-FOREIGN KEY (niveau_acces) REFERENCES NIVEAU_ACCES(niveau_acces)
+id_employe int,
+FOREIGN KEY (niveau_acces) REFERENCES NIVEAU_ACCES(niveau_acces),
+FOREIGN KEY (id_employe) REFERENCES EMPLOYE(id_employe)
 );
 
 
