@@ -66,6 +66,6 @@ public class EmployeConsole
 	}
 	private Option supressionAbilitation(final Employe employe)
 	{
-		return new Option("Réfuter les droits administrateur de l'utilisateur", "r", () -> {employe.getLigue().deleteAdministrateur(employe);});
+		return new Option("Réfuter les droits administrateurs de l'utilisateur", "r", () -> {employe.getLigue().deleteAdministrateur(employe);});
 	}
 }
