@@ -28,6 +28,7 @@ public class EmployeConsole
 			menu.add(changerMail(employe));
 			menu.add(changerPassword(employe));
 			menu.add(supEmploye(employe));
+			menu.add(abilitationLigue(employe));
 			menu.addBack("q");
 			return menu;
 	}
@@ -57,5 +58,9 @@ public class EmployeConsole
 	private Option supEmploye(final Employe employe)
 	{
 		return new Option("Supprimer l'employé", "d", () -> {employe.remove();});
+	}
+	private Option abilitationLigue(final Employe employe)
+	{
+		return new Option("Donner le rôle d'administrateur de la ligue", "a", () -> {employe.getLigue().setAdministrateur(employe);});
 	}
 }

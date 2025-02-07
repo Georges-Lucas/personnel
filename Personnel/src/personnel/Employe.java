@@ -248,6 +248,8 @@ public class Employe implements Serializable, Comparable<Employe>
 		String res = nom + " " + prenom + " " + mail + " "+ arrive  +" (";
 		if (estRoot())
 			res += "super-utilisateur";
+		else if (estAdmin(ligue))
+			res += "Administrateur";
 		else
 			res += ligue.toString();
 		return res + ")";
