@@ -17,7 +17,11 @@ prenom_employe varchar(100),
 email_employe varchar(100),
 mdp_employe varchar (32),
 date_arrive DATE,
-date_depart DATE
+date_depart DATE,
+id_travail int,
+id_role int,
+FOREIGN KEY (id_travail) REFERENCES TRAVAIL(id_travail),
+FOREIGN KEY (id_role) REFERENCES ROLE(id_role)
 );
 
 CREATE TABLE NIVEAU_ACCES (
@@ -26,18 +30,15 @@ niveau_acces varchar(32) PRIMARY KEY
 );
 
 CREATE TABLE TRAVAIL (
-id_employe int,
-nom_ligue int,
-FOREIGN KEY (id_employe) REFERENCES EMPLOYE(id_employe),
-FOREIGN KEY (nom_igue) REFERENCES LIGUE(nom_ligue)
+id_travail int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+id_ligue int,
+FOREIGN KEY (id_ligue) REFERENCES LIGUE(id_ligue)
 );
 
 CREATE TABLE ROLE (
-id_role int PRIMARY KEY NOT NULL AUTO_INCREMENT;
-niveau_acces varchar(32),
-id_employe int,
-FOREIGN KEY (niveau_acces) REFERENCES NIVEAU_ACCES(niveau_acces),
-FOREIGN KEY (id_employe) REFERENCES EMPLOYE(id_employe)
+id_role int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+id_niveau_acces int,
+FOREIGN KEY (id_niveau_acces) REFERENCES NIVEAU_ACCES(id_niveau_acces)
 );
 
 
