@@ -88,6 +88,21 @@ public class Ligue implements Serializable, Comparable<Ligue>
 			throw new DroitsInsuffisants();
 		this.administrateur = administrateur;
 	}
+	
+	
+	
+	/*Enlever le droit d'administrateur si l'utilisateur
+	 * est administrateur
+	 * 
+	 * 
+	 * */
+	public void deleteAdministrateur(Employe administrateur)
+	{
+		Employe root = gestionPersonnel.getRoot();
+		if (administrateur != root && administrateur.getLigue().getAdministrateur() == administrateur)
+		
+		this.administrateur = null;
+	}
 
 	/**
 	 * Retourne les employés de la ligue.

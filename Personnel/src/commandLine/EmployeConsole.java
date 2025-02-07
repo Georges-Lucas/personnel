@@ -29,6 +29,7 @@ public class EmployeConsole
 			menu.add(changerPassword(employe));
 			menu.add(supEmploye(employe));
 			menu.add(abilitationLigue(employe));
+			menu.add(supressionAbilitation(employe));
 			menu.addBack("q");
 			return menu;
 	}
@@ -62,5 +63,9 @@ public class EmployeConsole
 	private Option abilitationLigue(final Employe employe)
 	{
 		return new Option("Donner le rôle d'administrateur de la ligue", "a", () -> {employe.getLigue().setAdministrateur(employe);});
+	}
+	private Option supressionAbilitation(final Employe employe)
+	{
+		return new Option("Réfuter les droits administrateur de l'utilisateur", "r", () -> {employe.getLigue().deleteAdministrateur(employe);});
 	}
 }
