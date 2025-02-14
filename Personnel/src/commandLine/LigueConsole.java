@@ -99,7 +99,7 @@ public class LigueConsole
 				{
 					ligue.addEmploye(getString("nom : "), 
 						getString("prenom : "), getString("mail : "), 
-						getString("password : "), LocalDate.now(),null);
+						getString("password : "), LocalDate.of(Integer.parseInt(getString("L'année:")),Integer.parseInt(getString("Le mois:")),Integer.parseInt(getString("Le jours:"))),LocalDate.of(Integer.parseInt(getString("L'année:")),Integer.parseInt(getString("Le mois:")),Integer.parseInt(getString("Le jours:"))));
 				}
 		);
 	}
