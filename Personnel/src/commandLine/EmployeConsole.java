@@ -8,6 +8,7 @@ import commandLineMenus.ListOption;
 import commandLineMenus.Menu;
 import commandLineMenus.Option;
 import personnel.Employe;
+import personnel.InvalideDate;
 
 public class EmployeConsole 
 {
@@ -29,6 +30,8 @@ public class EmployeConsole
 			menu.add(changerPrenom(employe));
 			menu.add(changerMail(employe));
 			menu.add(changerPassword(employe));
+			menu.add(modifierDateArrivee(employe));
+			menu.add(modifierDateDepart(employe));
 			menu.add(supEmploye(employe));
 			menu.add(abilitationLigue(employe));
 			menu.add(supressionAbilitation(employe));
@@ -69,5 +72,37 @@ public class EmployeConsole
 	private Option supressionAbilitation(final Employe employe)
 	{
 		return new Option("Réfuter les droits administrateurs de l'utilisateur", "r", () -> {employe.getLigue().deleteAdministrateur(employe);});
+	}
+	private Option modifierDateArrivee(final Employe employe) 
+	{
+	    return new Option("Modifier la date d'arrivée", "m", () -> {
+	        LocalDate nouvelleDateArrivee = LocalDate.of(
+	            Integer.parseInt(getString("Année : ")),
+	            Integer.parseInt(getString("Mois : ")),
+	            Integer.parseInt(getString("Jour : "))
+	        );
+	        try {
+	            employe.setarrive(nouvelleDateArrivee); // Assurez-vous que la méthode s'appelle bien "setarrive"
+	        } catch (InvalideDate e) {
+	            e.printStackTrace();
+	        }
+	        System.out.println("Date d'arrivée modifiée avec succès.");
+	    });
+	}
+	private Option modifierDateDepart(final Employe employe) 
+	{
+	    return new Option("Modifier la date de départ", "z", () -> {
+	        LocalDate nouvelleDateDepart = LocalDate.of(
+	            Integer.parseInt(getString("Année : ")),
+	            Integer.parseInt(getString("Mois : ")),
+	            Integer.parseInt(getString("Jour : "))
+	        );
+	        try {
+	            employe.setdepart(nouvelleDateDepart); // Assurez-vous que la méthode s'appelle bien "setarrive"
+	        } catch (InvalideDate e) {
+	            e.printStackTrace();
+	        }
+	        System.out.println("Date de départ modifiée avec succès.");
+	    });
 	}
 }
