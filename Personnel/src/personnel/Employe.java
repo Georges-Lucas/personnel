@@ -74,7 +74,7 @@ public class Employe implements Serializable, Comparable<Employe>
 	 * @param nom le nouveau nom.
 	 */
 	
-	public void setNom(int id)
+	public void setId(int id)
 	{
 		this.id = id;
 	}
@@ -161,6 +161,12 @@ public class Employe implements Serializable, Comparable<Employe>
 	{
 		this.password= password;
 	}
+	
+	public String getPassword()
+	{
+		return password;
+	}
+
 
 	/**
 	 * Retourne la ligue à laquelle l'employé est affecté.
@@ -280,4 +286,5 @@ public class Employe implements Serializable, Comparable<Employe>
 			res += ligue.toString();
 		return res + ")";
 	}
+
 }
