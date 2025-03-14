@@ -16,10 +16,12 @@ public class Employe implements Serializable, Comparable<Employe>
 	private static final long serialVersionUID = 4795721718037994734L;
 	private String nom, prenom, password, mail;
 	private Ligue ligue;
+	private int id;
 	private LocalDate arrive, depart;
 	private GestionPersonnel gestionPersonnel;
 	private InvalideDate arr;
 	private InvalideDate dep;
+
 	
 	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, LocalDate arrive, LocalDate depart)
 	{
@@ -55,6 +57,26 @@ public class Employe implements Serializable, Comparable<Employe>
 	public boolean estRoot()
 	{
 		return gestionPersonnel.getRoot() == this;
+	}
+	
+	/**
+	 * Retourne l'id de l'employé.
+	 * @return l'id de l'employé. 
+	 */
+	
+	public int getId()
+	{
+		return id;
+	}
+
+	/**
+	 * Change le nom de l'employé.
+	 * @param nom le nouveau nom.
+	 */
+	
+	public void setNom(int id)
+	{
+		this.id = id;
 	}
 	
 	/**
