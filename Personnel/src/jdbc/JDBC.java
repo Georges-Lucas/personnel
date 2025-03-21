@@ -74,7 +74,8 @@ public class JDBC implements Passerelle
 		try 
 		{
 			PreparedStatement instruction;
-			instruction = connection.prepareStatement("insert into ligue (nom) values(?)", Statement.RETURN_GENERATED_KEYS);
+			instruction = connection.prepareStatement(
+					"insert into ligue (nom) values(?)", Statement.RETURN_GENERATED_KEYS);
 			instruction.setString(1, ligue.getNom());		
 			instruction.executeUpdate();
 			ResultSet id = instruction.getGeneratedKeys();
@@ -92,14 +93,14 @@ public class JDBC implements Passerelle
 	    try {
 	        PreparedStatement instruction;
 	        instruction = connection.prepareStatement(
-	                "INSERT INTO EMPLOYE (nom, prenom, mail, mdp, arrive, depart, id_ligue, id_niveau_acces ) VALUES (?, ?, ?, ?, NULL, NULL, ?, NULL )",
+	                "insert into employe (nom, prenom, mail, mdp, arrive, depart, id_ligue, id_niveau_acces ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL )",
 	                Statement.RETURN_GENERATED_KEYS);
 	        instruction.setString(1, employe.getNom());
 	        instruction.setString(2, employe.getPrenom());
 	        instruction.setString(3, employe.getMail());
 	        instruction.setString(4, employe.getPassword()); // Récupérer le mot de passe
-	       // instruction.setDate(5, java.sql.Date.valueOf(employe.getarrive())); // Convertir LocalDate en Date SQL
-	      //  instruction.setDate(6, employe.getdepart() != null ? java.sql.Date.valueOf(employe.getdepart()) : null); // Gérer les dates nulles
+	        instruction.setDate(5, java.sql.Date.valueOf(employe.getarrive())); // Convertir LocalDate en Date SQL
+	        instruction.setDate(6, employe.getdepart() != null ? java.sql.Date.valueOf(employe.getdepart()) : null); // Gérer les dates nulles
 	        instruction.setInt(7, employe.getLigue().getId());
 	        
 	        instruction.executeUpdate();

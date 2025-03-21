@@ -16,15 +16,22 @@ public class Employe implements Serializable, Comparable<Employe>
 	private static final long serialVersionUID = 4795721718037994734L;
 	private String nom, prenom, password, mail;
 	private Ligue ligue;
-	private int id;
+	private int id = -1;
 	private LocalDate arrive, depart;
 	private GestionPersonnel gestionPersonnel;
 	private InvalideDate arr;
 	private InvalideDate dep;
 
-	
-	Employe(GestionPersonnel gestionPersonnel, Ligue ligue, String nom, String prenom, String mail, String password, LocalDate arrive, LocalDate depart)
+
+	Employe(GestionPersonnel gestionPersonnel,Ligue ligue, String nom, String prenom, String mail, String password, LocalDate arrive, LocalDate depart) throws SauvegardeImpossible
 	{
+		this(gestionPersonnel, -1, ligue, nom, prenom, mail, password, arrive, depart);
+		this.id = gestionPersonnel.insert(this);
+	}
+	
+	Employe(GestionPersonnel gestionPersonnel, int id,Ligue ligue, String nom, String prenom, String mail, String password, LocalDate arrive, LocalDate depart)
+	{
+		this.id = id;
 		this.gestionPersonnel = gestionPersonnel;
 		this.nom = nom;
 		this.prenom = prenom;
@@ -260,6 +267,9 @@ public class Employe implements Serializable, Comparable<Employe>
 		
 		
 	}	
+	
+
+	
 
 	@Override
 	public int compareTo(Employe autre)
