@@ -77,8 +77,8 @@ public class Employe implements Serializable, Comparable<Employe>
 	}
 
 	/**
-	 * Change le nom de l'employé.
-	 * @param nom le nouveau nom.
+	* modifie l'id de l'employé.
+	 * @return l'id de l'employé.
 	 */
 	
 	public void setId(int id)
