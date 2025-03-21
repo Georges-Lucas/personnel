@@ -99,9 +99,13 @@ public class JDBC implements Passerelle
 	        instruction.setString(2, employe.getPrenom());
 	        instruction.setString(3, employe.getMail());
 	        instruction.setString(4, employe.getPassword()); // Récupérer le mot de passe
-	        instruction.setDate(5, java.sql.Date.valueOf(employe.getarrive())); // Convertir LocalDate en Date SQL
+	        instruction.setDate(5, employe.getarrive() != null ? java.sql.Date.valueOf(employe.getarrive()) : null); // Convertir LocalDate en Date SQL
 	        instruction.setDate(6, employe.getdepart() != null ? java.sql.Date.valueOf(employe.getdepart()) : null); // Gérer les dates nulles
-	        instruction.setInt(7, employe.getLigue().getId());
+	        
+	        if (employe.getLigue() != null) {
+	            instruction.setInt(7, employe.getLigue().getId());
+	        } else {
+	            instruction.setNull(7, java.sql.Types.INTEGER);	        }
 	        
 	        instruction.executeUpdate();
 	        ResultSet id = instruction.getGeneratedKeys();
