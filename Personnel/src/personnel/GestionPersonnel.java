@@ -33,7 +33,9 @@ public class GestionPersonnel implements Serializable
 	public Employe addRoot(String nom, String password) {
 		Employe root = new Employe(this,0, null, nom, "", "", password, null,null);
 		try {
-			passerelle.insert(root);
+			if(getRoot() != null) {
+				passerelle.insert(root);
+			}
 		} catch (SauvegardeImpossible e) {
 			e.printStackTrace();
 		}
