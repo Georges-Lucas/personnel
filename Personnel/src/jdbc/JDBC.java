@@ -116,4 +116,7 @@ public class JDBC implements Passerelle
 	        throw new SauvegardeImpossible(exception);
 	    }
 	}
+	public Connection getConnection() {
+	    return this.connection;
+	}
 }
