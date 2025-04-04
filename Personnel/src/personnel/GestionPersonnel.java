@@ -31,16 +31,29 @@ public class GestionPersonnel implements Serializable
 	 * @return l'unique objet de type {@link GestionPersonnel}.
 	 */
 	public Employe addRoot(String nom, String password) {
-		Employe root = new Employe(this,0, null, nom, "", "", password, null,null);
-		try {
-			if(getRoot() != null) {
-				passerelle.insert(root);
-			}
-		} catch (SauvegardeImpossible e) {
-			e.printStackTrace();
-		}
-		return this.root = root;
+	    // Vérifier si un root existe déjà en base de données
+	    this.root = getRoot(); // Assurez-vous que getRoot() récupère depuis la BDD
+
+	    if (this.root != null) {
+	        System.out.println("Un root existe déjà !");
+	        return this.root; // Retourne le root existant sans créer un nouveau
+	    }
+
+	    // Si aucun root trouvé, on en crée un nouveau
+	    Employe root = new Employe(this, 0, null, nom, "", "", password, null, null);
+	    
+	    try {
+	        passerelle.insert(root); // Insérer dans la base de données
+	    } catch (SauvegardeImpossible e) {
+	        e.printStackTrace();
+	        return null; // Si l'insertion échoue, on retourne null
+	    }
+	    
+	    // Affecter et retourner le nouveau root
+	    this.root = root;
+	    return root;
 	}
+
 	
 	public static GestionPersonnel getGestionPersonnel()
 	{
