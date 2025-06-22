@@ -4,6 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+// Assurez-vous que cette importation est correcte selon la localisation de votre classe
+// Si tout est dans le même package "affichage", cette ligne n'est pas nécessaire.
+// Si elle pose problème, supprimez-la si AccueilConnexion est aussi dans le package "affichage".
+// import AccueilConnexion.UtilisateurConnecte; 
+
 public class GestionLigues extends JFrame {
     
     public GestionLigues() {
@@ -12,7 +17,10 @@ public class GestionLigues extends JFrame {
     
     private void initializeComponents() {
         // Configuration de la fenêtre
-        String nomComplet = AccueilConnexion.UtilisateurConnecte.prenom + " " + AccueilConnexion.UtilisateurConnecte.nom;
+        String prenom = AccueilConnexion.UtilisateurConnecte.prenom != null ? AccueilConnexion.UtilisateurConnecte.prenom : "";
+        String nom = AccueilConnexion.UtilisateurConnecte.nom != null ? AccueilConnexion.UtilisateurConnecte.nom : "";
+        String nomComplet = (prenom + " " + nom).trim();
+
         setTitle("Gestion des Ligues - " + nomComplet);
         setSize(600, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -22,30 +30,25 @@ public class GestionLigues extends JFrame {
         JPanel panelPrincipal = new JPanel();
         panelPrincipal.setLayout(new BorderLayout());
 
-        // Titre
+        // Titre et sous-titre
         JLabel titre = new JLabel("GESTION DES LIGUES", SwingConstants.CENTER);
         titre.setFont(new Font("Arial", Font.BOLD, 24));
         titre.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
         
-        // Sous-titre avec niveau d'accès
         String niveauTexte = getNiveauTexte(AccueilConnexion.UtilisateurConnecte.niveauAcces);
         JLabel sousTitre = new JLabel("Niveau d'accès : " + niveauTexte, SwingConstants.CENTER);
         sousTitre.setFont(new Font("Arial", Font.ITALIC, 14));
         sousTitre.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
-        // Panneau pour titre et sous-titre
         JPanel panelTitre = new JPanel();
         panelTitre.setLayout(new BorderLayout());
         panelTitre.add(titre, BorderLayout.NORTH);
         panelTitre.add(sousTitre, BorderLayout.SOUTH);
 
-        // Panneau des boutons - le nombre de lignes dépend du niveau d'accès
-        int nombreBoutons = (AccueilConnexion.UtilisateurConnecte.niveauAcces == 3) ? 2 : 4; // Utilisateur simple : 2 boutons, Admin/Ligue : 4 boutons
         JPanel panelBoutons = new JPanel();
-        panelBoutons.setLayout(new GridLayout(nombreBoutons, 1, 10, 10));
+        panelBoutons.setLayout(new GridLayout(0, 1, 10, 10)); // 0 lignes, 1 colonne
         panelBoutons.setBorder(BorderFactory.createEmptyBorder(20, 80, 20, 80));
 
-        // Style des boutons
         Font fontBouton = new Font("Arial", Font.PLAIN, 16);
         Dimension tailleBouton = new Dimension(0, 60);
 
@@ -61,9 +64,20 @@ public class GestionLigues extends JFrame {
         });
         panelBoutons.add(boutonAfficher);
 
-        // Boutons pour les niveaux 1 et 2 (Administrateur et Administrateur Ligue)
+        // Bouton "Sélectionner une ligue" - maintenant accessible à TOUS
+        JButton boutonSelectionner = new JButton("Sélectionner une ligue");
+        boutonSelectionner.setFont(fontBouton);
+        boutonSelectionner.setPreferredSize(tailleBouton);
+        boutonSelectionner.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectionnerLigue();
+            }
+        });
+        panelBoutons.add(boutonSelectionner); // Ajouté inconditionnellement
+
+        // Bouton "Ajouter une ligue" - Visible uniquement pour les niveaux 1 et 2
         if (AccueilConnexion.UtilisateurConnecte.niveauAcces == 1 || AccueilConnexion.UtilisateurConnecte.niveauAcces == 2) {
-            // Bouton "Ajouter une ligue"
             JButton boutonAjouter = new JButton("Ajouter une ligue");
             boutonAjouter.setFont(fontBouton);
             boutonAjouter.setPreferredSize(tailleBouton);
@@ -74,25 +88,13 @@ public class GestionLigues extends JFrame {
                 }
             });
             panelBoutons.add(boutonAjouter);
-
-            // Bouton "Sélectionner une ligue"
-            JButton boutonSelectionner = new JButton("Sélectionner une ligue");
-            boutonSelectionner.setFont(fontBouton);
-            boutonSelectionner.setPreferredSize(tailleBouton);
-            boutonSelectionner.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    selectionnerLigue();
-                }
-            });
-            panelBoutons.add(boutonSelectionner);
         }
-
+            
         // Bouton "Retour" - accessible à tous
         JButton boutonRetour = new JButton("Retour à l'accueil");
         boutonRetour.setFont(fontBouton);
         boutonRetour.setPreferredSize(tailleBouton);
-        boutonRetour.setBackground(new Color(255, 230, 230)); // Couleur légèrement différente
+        boutonRetour.setBackground(new Color(255, 230, 230));
         boutonRetour.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -101,7 +103,6 @@ public class GestionLigues extends JFrame {
         });
         panelBoutons.add(boutonRetour);
 
-        // Ajout des composants au panneau principal
         panelPrincipal.add(panelTitre, BorderLayout.NORTH);
         panelPrincipal.add(panelBoutons, BorderLayout.CENTER);
 
@@ -112,10 +113,7 @@ public class GestionLigues extends JFrame {
         infoAcces.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panelPrincipal.add(infoAcces, BorderLayout.SOUTH);
 
-        // Ajout du panneau principal à la fenêtre
         add(panelPrincipal);
-
-        // Affichage de la fenêtre
         setVisible(true);
     }
     
@@ -137,26 +135,23 @@ public class GestionLigues extends JFrame {
     }
     
     private void afficherLigues() {
-        // Création et affichage de la fenêtre AfficherLigues
-        AfficherLigues fenetreLigues = new AfficherLigues();
-        fenetreLigues.setVisible(true);
+        new AfficherLigues();
+        dispose();
     }
 
-    
     private void ajouterLigue() {
-        // Création et affichage de la fenêtre AfficherLigues
-    	AjouterLigue fenetreLigues = new AjouterLigue();
-        fenetreLigues.setVisible(true);
+        new AjouterLigue();
+        dispose();
     }
     
     private void selectionnerLigue() {
-        // Création et affichage de la fenêtre AfficherLigues
-    	SelectionnerLigue fenetreLigues = new SelectionnerLigue();
-        fenetreLigues.setVisible(true);
+        // C'est ici que SelectionnerLigue est appelée.
+        // SelectionnerLigue sera chargée de masquer/activer ses propres boutons d'édition.
+        new SelectionnerLigue(); 
+        dispose();
     }
     
     private void retourAccueil() {
-        // Retour à la page d'accueil
         new Accueil();
         dispose();
     }
