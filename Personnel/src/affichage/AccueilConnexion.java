@@ -24,6 +24,15 @@ public class AccueilConnexion extends JFrame {
     // Instance de votre classe JDBC
     private JDBC jdbc;
     
+    // Classe pour stocker les infos de l'utilisateur connecté
+    public static class UtilisateurConnecte {
+        public static int id;
+        public static String nom;
+        public static String prenom;
+        public static String mail;
+        public static int niveauAcces;
+    }
+    
     public AccueilConnexion() {
         // Configuration de la fenêtre
         setTitle("Connexion");
@@ -63,18 +72,37 @@ public class AccueilConnexion extends JFrame {
         add(panel, BorderLayout.CENTER);
 
         
-        // Gestionnaires d'événements
+        // Gestionnaires d'événements avec validation
         boutonConnexion.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String utilisateur = champUtilisateur.getText();
+                String utilisateur = champUtilisateur.getText().trim(); // trim() pour enlever les espaces
                 String motDePasse = new String(champMotDePasse.getPassword());
-                if (verifierConnexion(utilisateur, motDePasse)) {
+                
+                // Validation des champs
+                if (utilisateur.isEmpty()) {
+                    messageErreur.setText("Veuillez saisir une adresse email !");
+                    return;
+                }
+                
+                if (motDePasse.isEmpty()) {
+                    messageErreur.setText("Veuillez saisir un mot de passe !");
+                    return;
+                }
+                
+                // Validation du format email (optionnel mais recommandé)
+                if (!isValidEmail(utilisateur)) {
+                    messageErreur.setText("Format d'email invalide !");
+                    return;
+                }
+                
+                // Vérification de la connexion et récupération des infos utilisateur
+                if (verifierConnexionEtRecupererInfos(utilisateur, motDePasse)) {
+                    messageErreur.setText(""); // Effacer le message d'erreur
                     JOptionPane.showMessageDialog(null, "Connexion réussie !");
                     // Crée et affiche la nouvelle fenêtre Accueil
                     new Accueil();
                     dispose();
-                    // Assurez-vous que la classe Accueil existe
                 } else {
                     messageErreur.setText("Identifiants incorrects !");
                 }
@@ -83,6 +111,13 @@ public class AccueilConnexion extends JFrame {
         
 
         setVisible(true);
+    }
+    
+    // Méthode pour valider le format email
+    private boolean isValidEmail(String email) {
+        // Expression régulière simple pour valider un email
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        return email.matches(emailRegex);
     }
     
     private void chargerIdentifiants() {
@@ -114,22 +149,35 @@ public class AccueilConnexion extends JFrame {
     }
     
     
-    private boolean verifierConnexion(String utilisateur, String motDePasse) {
+    private boolean verifierConnexionEtRecupererInfos(String utilisateur, String motDePasse) {
         try {
             Connection connection = jdbc.getConnection();
             PreparedStatement pstmt = connection.prepareStatement(
-                "SELECT * FROM employe WHERE mail = ? AND mdp = ?");
+                "SELECT e.id, e.nom, e.prenom, e.mail, e.id_niveau_acces " +
+                "FROM employe e " +
+                "WHERE e.mail = ? AND e.mdp = ?");
             pstmt.setString(1, utilisateur);
             pstmt.setString(2, motDePasse);
             
             ResultSet rs = pstmt.executeQuery();
-            boolean existe = rs.next();
+            
+            if (rs.next()) {
+                // Stocker les informations de l'utilisateur connecté
+                UtilisateurConnecte.id = rs.getInt("id");
+                UtilisateurConnecte.nom = rs.getString("nom");
+                UtilisateurConnecte.prenom = rs.getString("prenom");
+                UtilisateurConnecte.mail = rs.getString("mail");
+                UtilisateurConnecte.niveauAcces = rs.getInt("id_niveau_acces");
+                
+                rs.close();
+                pstmt.close();
+                return true;
+            }
             
             rs.close();
             pstmt.close();
-            // Ne fermez pas la connexion ici
+            return false;
             
-            return existe;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
