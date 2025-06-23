@@ -15,7 +15,7 @@ public class CreationUtilisateur extends JFrame {
 
     public CreationUtilisateur() {
         setTitle("Création d'un Nouvel Utilisateur");
-        setSize(500, 400);
+        setSize(700, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -74,7 +74,7 @@ public class CreationUtilisateur extends JFrame {
         panelPrincipal.add(panelChamps, BorderLayout.CENTER);
 
         // Note d'information
-        JLabel noteInfo = new JLabel("<html><i>* Champs obligatoires<br/>L'utilisateur pourra modifier ses informations après création</i></html>");
+        JLabel noteInfo = new JLabel("<html><i>* Champs obligatoires<br/>L'utilisateur pourra modifier ses informations après création<br/>L'affectation à une ligue se fait depuis la page de gestion des ligues</i></html>");
         noteInfo.setFont(new Font("Arial", Font.ITALIC, 11));
         noteInfo.setForeground(Color.GRAY);
         noteInfo.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -167,8 +167,9 @@ public class CreationUtilisateur extends JFrame {
         }
 
         // Création de l'utilisateur
+        Connection connection = null;
         try {
-            Connection connection = jdbc.getConnection();
+            connection = jdbc.getConnection();
             
             // Détermination du niveau d'accès selon l'utilisateur connecté
             int niveauAcces;
@@ -180,33 +181,41 @@ public class CreationUtilisateur extends JFrame {
                 niveauAcces = 3;
             }
 
-            PreparedStatement pstmt = connection.prepareStatement(
+            // Créer l'employé (sans affectation de ligue)
+            PreparedStatement pstmtEmploye = connection.prepareStatement(
                     "INSERT INTO employe (nom, prenom, mail, mdp, id_niveau_acces) VALUES (?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
             
-            pstmt.setString(1, nom);
-            pstmt.setString(2, prenom);
-            pstmt.setString(3, mail);
-            pstmt.setString(4, mdp);
-            pstmt.setInt(5, niveauAcces);
+            pstmtEmploye.setString(1, nom);
+            pstmtEmploye.setString(2, prenom);
+            pstmtEmploye.setString(3, mail);
+            pstmtEmploye.setString(4, mdp);
+            pstmtEmploye.setInt(5, niveauAcces);
 
-            int resultat = pstmt.executeUpdate();
-
+            int resultat = pstmtEmploye.executeUpdate();
+            int nouvelEmployeId = -1;
+            
             if (resultat > 0) {
-                ResultSet generatedKeys = pstmt.getGeneratedKeys();
-                int nouvelId = -1;
+                ResultSet generatedKeys = pstmtEmploye.getGeneratedKeys();
                 if (generatedKeys.next()) {
-                    nouvelId = generatedKeys.getInt(1);
+                    nouvelEmployeId = generatedKeys.getInt(1);
                 }
+                generatedKeys.close();
+            }
+            pstmtEmploye.close();
 
+            if (nouvelEmployeId > 0) {
+                // Message de succès
                 String[] niveauxTexte = {"Administrateur Logiciel", "Administrateur Ligue", "Utilisateur"};
+                
                 String message = String.format(
                     "Utilisateur créé avec succès !\n\n" +
                     "ID : %d\n" +
                     "Nom : %s %s\n" +
                     "Email : %s\n" +
-                    "Niveau d'accès : %s",
-                    nouvelId, prenom, nom, mail, niveauxTexte[niveauAcces - 1]
+                    "Niveau d'accès : %s\n\n" +
+                    "L'affectation à une ligue peut être effectuée depuis la page de gestion des ligues.",
+                    nouvelEmployeId, prenom, nom, mail, niveauxTexte[niveauAcces - 1]
                 );
 
                 JOptionPane.showMessageDialog(this, message, "Succès", JOptionPane.INFORMATION_MESSAGE);
@@ -229,12 +238,9 @@ public class CreationUtilisateur extends JFrame {
                     dispose();
                 }
 
-                generatedKeys.close();
             } else {
                 JOptionPane.showMessageDialog(this, "Erreur lors de la création de l'utilisateur !", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
-
-            pstmt.close();
 
         } catch (SQLException e) {
             e.printStackTrace();

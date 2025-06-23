@@ -5,7 +5,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
-import java.util.Vector;
 
 import jdbc.JDBC;
 
@@ -16,19 +15,10 @@ public class EditerLigue extends JFrame {
     private String nomLigue;
     private int niveauAccesUtilisateur;
 
-    // Déclarations de tous les composants d'interface graphique
     private JLabel labelNomLigue;
-    private JTextField champNomLigue;
-    private JButton btnRenommerLigue;
-    private JButton btnSupprimerLigue;
-    private JButton btnActualiserUtilisateurs; // Renommé pour correspondre à sa fonction
+    private JButton btnAffecterResponsable;
     private JTable tableUtilisateurs;
     private DefaultTableModel modeleTableUtilisateurs;
-    private JButton btnAjouterUtilisateur; // Renommé pour correspondre à la demande
-    // private JButton btnChangerRole; // Ce bouton est supprimé
-    private JButton btnRetirerUtilisateur;
-    private JButton btnRetour;
-
 
     public EditerLigue(int idLigue, String nomLigue, int niveauAccesUtilisateur) {
         this.idLigue = idLigue;
@@ -36,133 +26,106 @@ public class EditerLigue extends JFrame {
         this.niveauAccesUtilisateur = niveauAccesUtilisateur;
         this.jdbc = new JDBC();
 
-        try {
-            initializeComponents();
-            chargerDetailsLigue();
-            chargerUtilisateursLigue(); // Appel automatique pour charger les utilisateurs
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Une erreur est survenue lors du chargement de la ligue : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-            dispose();
-        }
-        
+        initializeComponents();
+        chargerUtilisateursLigue();
+
+        setTitle("Détails de la Ligue : " + nomLigue);
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
     private void initializeComponents() {
-        // Configuration de la fenêtre EditerLigue
-        setTitle("Détails de la Ligue : " + nomLigue);
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // --- Panneau d'informations de la ligue ---
-        JPanel panelInfoLigue = new JPanel(new GridBagLayout());
-        panelInfoLigue.setBorder(BorderFactory.createTitledBorder("Informations de la ligue"));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        // --- Haut : Informations ligue ---
+        JPanel panelInfo = new JPanel(new BorderLayout());
+        panelInfo.setBorder(BorderFactory.createTitledBorder("Informations de la ligue"));
 
         labelNomLigue = new JLabel("Nom de la ligue : " + nomLigue);
-        labelNomLigue.setFont(new Font("Arial", Font.BOLD, 18));
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        panelInfoLigue.add(labelNomLigue, gbc);
+        labelNomLigue.setFont(new Font("Arial", Font.BOLD, 20));
+        labelNomLigue.setHorizontalAlignment(JLabel.CENTER);
 
-        // Champ pour renommer la ligue (visible seulement pour niveau 1 et 2)
-        if (niveauAccesUtilisateur == 1 || niveauAccesUtilisateur == 2) {
-            champNomLigue = new JTextField(nomLigue);
-            gbc.gridy = 1; gbc.gridwidth = 1;
-            panelInfoLigue.add(new JLabel("Nouveau nom :"), gbc);
-            gbc.gridx = 1;
-            panelInfoLigue.add(champNomLigue, gbc);
+        panelInfo.add(labelNomLigue, BorderLayout.CENTER);
 
-            btnRenommerLigue = new JButton("Renommer Ligue");
-            btnRenommerLigue.addActionListener(e -> renommerLigue());
-            gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
-            panelInfoLigue.add(btnRenommerLigue, gbc);
-
-            btnSupprimerLigue = new JButton("Supprimer Ligue");
-            btnSupprimerLigue.setBackground(new Color(255, 200, 200)); 
-            btnSupprimerLigue.addActionListener(e -> supprimerLigue());
-            gbc.gridy = 3;
-            panelInfoLigue.add(btnSupprimerLigue, gbc);
+        // Si niveau 1, afficher le bouton affecter responsable
+        if (niveauAccesUtilisateur == 1) {
+            btnAffecterResponsable = new JButton("Affecter / Changer Responsable de Ligue");
+            btnAffecterResponsable.addActionListener(e -> ouvrirFenetreAffecterResponsable());
+            panelInfo.add(btnAffecterResponsable, BorderLayout.SOUTH);
         }
 
-        add(panelInfoLigue, BorderLayout.NORTH); 
+        add(panelInfo, BorderLayout.NORTH);
 
-
-        // --- Panneau des utilisateurs de la ligue (Tableau) ---
+        // --- Centre : Table utilisateurs ---
         JPanel panelUtilisateurs = new JPanel(new BorderLayout());
         panelUtilisateurs.setBorder(BorderFactory.createTitledBorder("Utilisateurs de la ligue"));
 
-        String[] colonnesUtilisateurs = {"ID Employé", "Nom", "Prénom", "Email", "Niveau d'accès"};
-        modeleTableUtilisateurs = new DefaultTableModel(colonnesUtilisateurs, 0) {
+        String[] colonnes = {"ID Employé", "Nom", "Prénom", "Email", "Niveau d'accès"};
+        modeleTableUtilisateurs = new DefaultTableModel(colonnes, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
+
         tableUtilisateurs = new JTable(modeleTableUtilisateurs);
-        tableUtilisateurs.setFillsViewportHeight(true);
-        JScrollPane scrollPaneUtilisateurs = new JScrollPane(tableUtilisateurs);
-        panelUtilisateurs.add(scrollPaneUtilisateurs, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(tableUtilisateurs);
 
-        // --- Boutons de gestion des utilisateurs ---
-        JPanel panelBoutonsUtilisateurs = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        panelUtilisateurs.add(scrollPane, BorderLayout.CENTER);
 
-        btnActualiserUtilisateurs = new JButton("Actualiser la liste des Utilisateurs"); 
-        btnActualiserUtilisateurs.addActionListener(e -> chargerUtilisateursLigue());
-        panelBoutonsUtilisateurs.add(btnActualiserUtilisateurs);
+        // --- Bas : Boutons ---
+        JPanel panelBoutons = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
-        // Boutons pour les niveaux 1 et 2 (Ajouter, Retirer Utilisateur)
+        JButton btnActualiser = new JButton("Actualiser la liste des Utilisateurs");
+        btnActualiser.addActionListener(e -> chargerUtilisateursLigue());
+        panelBoutons.add(btnActualiser);
+
+        // Boutons pour niveau 1 et 2
         if (niveauAccesUtilisateur == 1 || niveauAccesUtilisateur == 2) {
-            btnAjouterUtilisateur = new JButton("Ajouter un Utilisateur à la ligue"); // Nom changé ici
-            btnAjouterUtilisateur.addActionListener(e -> ajouterUtilisateurALigue());
-            panelBoutonsUtilisateurs.add(btnAjouterUtilisateur);
+            JButton btnAjouter = new JButton("Ajouter un Utilisateur");
+            btnAjouter.addActionListener(e -> ajouterUtilisateurALigue());
+            panelBoutons.add(btnAjouter);
 
-            // btnChangerRole = new JButton("Changer Rôle Utilisateur"); // Supprimé
-            // btnChangerRole.addActionListener(e -> changerRoleUtilisateur()); // Supprimé
-            // panelBoutonsUtilisateurs.add(btnChangerRole); // Supprimé
-
-            btnRetirerUtilisateur = new JButton("Retirer Utilisateur");
-            btnRetirerUtilisateur.addActionListener(e -> retirerUtilisateur());
-            panelBoutonsUtilisateurs.add(btnRetirerUtilisateur);
+            JButton btnRetirer = new JButton("Retirer Utilisateur");
+            btnRetirer.addActionListener(e -> retirerUtilisateur());
+            panelBoutons.add(btnRetirer);
         }
 
+        // Bouton supprimer ligue pour niveau 1
+        if (niveauAccesUtilisateur == 1) {
+            JButton btnSupprimer = new JButton("Supprimer la Ligue");
+            btnSupprimer.setBackground(new Color(255, 100, 100));
+            btnSupprimer.addActionListener(e -> supprimerLigue());
+            panelBoutons.add(btnSupprimer);
+        }
 
-        panelUtilisateurs.add(panelBoutonsUtilisateurs, BorderLayout.SOUTH);
+        panelUtilisateurs.add(panelBoutons, BorderLayout.SOUTH);
         add(panelUtilisateurs, BorderLayout.CENTER);
 
-
-        // --- Bouton Retour ---
+        // --- Bas : Retour ---
         JPanel panelRetour = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnRetour = new JButton("Retour aux Ligues");
+        JButton btnRetour = new JButton("Retour aux Ligues");
         btnRetour.addActionListener(e -> {
-            new SelectionnerLigue(); 
+            new SelectionnerLigue();
             dispose();
         });
         panelRetour.add(btnRetour);
         add(panelRetour, BorderLayout.SOUTH);
     }
 
-    private void chargerDetailsLigue() {
-        if (labelNomLigue != null) { 
-            labelNomLigue.setText("Nom de la ligue : " + nomLigue);
-        }
-    }
+    // --- Méthodes BDD ---
 
-    // Méthode rendue publique pour permettre l'actualisation depuis les fenêtres enfants
     public void chargerUtilisateursLigue() {
         modeleTableUtilisateurs.setRowCount(0);
-
         try {
             Connection connection = jdbc.getConnection();
             String sql = "SELECT e.id, e.nom, e.prenom, e.mail, n.niveau_acces " +
                          "FROM employe e " +
-                         "INNER JOIN employe_ligue el ON e.id = el.id_employe " + 
+                         "INNER JOIN employe_ligue el ON e.id = el.id_employe " +
                          "INNER JOIN niveau_acces n ON e.id_niveau_acces = n.id " +
-                         "WHERE el.id_ligue = ? ORDER BY e.nom"; 
+                         "WHERE el.id_ligue = ? ORDER BY e.nom";
             PreparedStatement pstmt = connection.prepareStatement(sql);
             pstmt.setInt(1, idLigue);
             ResultSet rs = pstmt.executeQuery();
@@ -173,7 +136,7 @@ public class EditerLigue extends JFrame {
                     rs.getString("nom"),
                     rs.getString("prenom"),
                     rs.getString("mail"),
-                    rs.getString("niveau_acces") 
+                    rs.getString("niveau_acces")
                 };
                 modeleTableUtilisateurs.addRow(row);
             }
@@ -182,51 +145,107 @@ public class EditerLigue extends JFrame {
             pstmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur lors du chargement des utilisateurs de la ligue : " + e.getMessage(), "Erreur BD", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erreur lors du chargement des utilisateurs : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void renommerLigue() {
-        String nouveauNom = champNomLigue.getText().trim();
-        if (nouveauNom.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Le nom de la ligue ne peut pas être vide.", "Erreur", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+    private void ouvrirFenetreAffecterResponsable() {
+        JDialog dialog = new JDialog(this, "Affecter / Changer Responsable", true);
+        dialog.setSize(400, 200);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+
+        JComboBox<String> comboResponsables = new JComboBox<>();
         try {
             Connection connection = jdbc.getConnection();
-            String sql = "UPDATE ligue SET nom = ? WHERE id = ?";
+            String sql = "SELECT id, nom, prenom, mail, id_ligue FROM employe WHERE id_niveau_acces = 2 ORDER BY nom, prenom";
             PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setString(1, nouveauNom);
-            pstmt.setInt(2, idLigue);
-            int updated = pstmt.executeUpdate();
-            if (updated > 0) {
-                JOptionPane.showMessageDialog(this, "Ligue renommée avec succès !");
-                this.nomLigue = nouveauNom; 
-                labelNomLigue.setText("Nom de la ligue : " + nomLigue); 
-                setTitle("Détails de la Ligue : " + nomLigue); 
-            } else {
-                JOptionPane.showMessageDialog(this, "Échec du renommage de la ligue.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                String mail = rs.getString("mail");
+                int idLigueAffectee = rs.getInt("id_ligue");
+
+                String ligueInfo = (idLigueAffectee == 0) ? "Aucune ligue" : "Ligue " + idLigueAffectee;
+                comboResponsables.addItem(id + " - " + prenom + " " + nom + " (" + mail + ") - " + ligueInfo);
             }
+
+            rs.close();
             pstmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur SQL lors du renommage : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erreur SQL : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        dialog.add(comboResponsables, BorderLayout.CENTER);
+
+        JButton btnValider = new JButton("Valider l'affectation");
+        btnValider.addActionListener(e -> {
+            if (comboResponsables.getSelectedIndex() == -1) {
+                JOptionPane.showMessageDialog(dialog, "Sélectionnez un utilisateur.", "Erreur", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String selection = (String) comboResponsables.getSelectedItem();
+            int idEmploye = Integer.parseInt(selection.split(" - ")[0]);
+
+            try {
+                Connection connection = jdbc.getConnection();
+
+                // Mettre à jour id_ligue
+                String sqlUpdate = "UPDATE employe SET id_ligue = ? WHERE id = ?";
+                PreparedStatement pstmtUpdate = connection.prepareStatement(sqlUpdate);
+                pstmtUpdate.setInt(1, idLigue);
+                pstmtUpdate.setInt(2, idEmploye);
+
+                int updated = pstmtUpdate.executeUpdate();
+                pstmtUpdate.close();
+
+                if (updated > 0) {
+                    JOptionPane.showMessageDialog(dialog, "Responsable affecté avec succès.");
+                    chargerUtilisateursLigue();
+                    dialog.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "Erreur lors de l'affectation.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                }
+
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(dialog, "Erreur SQL : " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        dialog.add(btnValider, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+
+    private void ajouterUtilisateurALigue() {
+        // Ici tu peux ouvrir ta classe AjouterUtilisateurLigue (existant)
+        new AjouterUtilisateurLigue(idLigue, nomLigue, this);
+    }
+
+    private void retirerUtilisateur() {
+        new RetirerUtilisateurLigue(idLigue, nomLigue, this);
     }
 
     private void supprimerLigue() {
-        int confirm = JOptionPane.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer cette ligue ? Cette action est irréversible et supprimera également les associations avec les employés.", "Confirmer suppression", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(this, "Supprimer cette ligue ? Cette action est irréversible.", "Confirmer", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 Connection connection = jdbc.getConnection();
-                // Supprimer les associations employe_ligue
+
+                // Supprimer les associations
                 String sqlDeleteAssociations = "DELETE FROM employe_ligue WHERE id_ligue = ?";
                 PreparedStatement pstmtAssoc = connection.prepareStatement(sqlDeleteAssociations);
                 pstmtAssoc.setInt(1, idLigue);
                 pstmtAssoc.executeUpdate();
                 pstmtAssoc.close();
 
-                // Supprimer la ligue elle-même
+                // Supprimer la ligue
                 String sqlDeleteLigue = "DELETE FROM ligue WHERE id = ?";
                 PreparedStatement pstmtLigue = connection.prepareStatement(sqlDeleteLigue);
                 pstmtLigue.setInt(1, idLigue);
@@ -234,40 +253,16 @@ public class EditerLigue extends JFrame {
                 pstmtLigue.close();
 
                 if (deleted > 0) {
-                    JOptionPane.showMessageDialog(this, "Ligue supprimée avec succès !");
-                    new SelectionnerLigue(); 
+                    JOptionPane.showMessageDialog(this, "Ligue supprimée.");
+                    new SelectionnerLigue();
                     dispose();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Échec de la suppression de la ligue.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Erreur lors de la suppression.", "Erreur", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Erreur SQL lors de la suppression : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Erreur SQL : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
             }
-        }
-    }
-
-    // Méthode modifiée pour ouvrir la fenêtre d'ajout d'utilisateur
-    private void ajouterUtilisateurALigue() {
-        new AjouterUtilisateurLigue(idLigue, nomLigue, this);
-    }
-
-    // private void changerRoleUtilisateur() { // Cette méthode est supprimée
-    //     JOptionPane.showMessageDialog(this, "Fonctionnalité 'Changer Rôle Utilisateur' à implémenter.");
-    // }
-
-    // Méthode modifiée pour ouvrir la fenêtre de retrait d'utilisateur
-    private void retirerUtilisateur() {
-        new RetirerUtilisateurLigue(idLigue, nomLigue, this);
-    }
-
-    public void fermerConnexion() {
-        try {
-            if (jdbc != null) {
-                // jdbc.close(); 
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }
