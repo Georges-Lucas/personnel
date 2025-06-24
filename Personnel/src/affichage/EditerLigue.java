@@ -238,14 +238,21 @@ public class EditerLigue extends JFrame {
             try {
                 Connection connection = jdbc.getConnection();
 
-                // Supprimer les associations
+                // 1. Libérer les responsables / employés liés à cette ligue
+                String sqlUpdateEmployes = "UPDATE employe SET id_ligue = NULL WHERE id_ligue = ?";
+                PreparedStatement pstmtEmployes = connection.prepareStatement(sqlUpdateEmployes);
+                pstmtEmployes.setInt(1, idLigue);
+                pstmtEmployes.executeUpdate();
+                pstmtEmployes.close();
+
+                // 2. Supprimer les associations dans employe_ligue
                 String sqlDeleteAssociations = "DELETE FROM employe_ligue WHERE id_ligue = ?";
                 PreparedStatement pstmtAssoc = connection.prepareStatement(sqlDeleteAssociations);
                 pstmtAssoc.setInt(1, idLigue);
                 pstmtAssoc.executeUpdate();
                 pstmtAssoc.close();
 
-                // Supprimer la ligue
+                // 3. Supprimer la ligue
                 String sqlDeleteLigue = "DELETE FROM ligue WHERE id = ?";
                 PreparedStatement pstmtLigue = connection.prepareStatement(sqlDeleteLigue);
                 pstmtLigue.setInt(1, idLigue);
@@ -265,4 +272,5 @@ public class EditerLigue extends JFrame {
             }
         }
     }
+
 }
